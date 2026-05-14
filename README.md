@@ -1,5 +1,6 @@
 
-<img width="693" height="371" alt="image" src="https://github.com/user-attachments/assets/c0a9cce8-e9ed-43b4-8763-a1b0d6ebf562" />
+<img width="2364" height="1264" alt="6bef66e7b3409081f3d61a1e62224fcf" src="https://github.com/user-attachments/assets/24d45544-51f0-430f-bb4d-ae43a918ef6e" />
+
 <img width="2205" height="1297" alt="f0dd82942038d68ee9b50ec60d236659" src="https://github.com/user-attachments/assets/4ffe486a-d014-43de-9cbc-cda84e76004c" />
 
 # 伊比利亚半岛尼安德特人消失研究复现报告
@@ -39,10 +40,6 @@
 2. 南部地中海区：冷暖期生产力波动小、中型食草动物生物量更稳定，尼安德特人存续更久
 3. 生态生产力波动是伊比利亚尼安德特人南北差异消失的关键原因，南部成为气候避难所
 
-### 环境配置
-- R版本：4.5.2
-- 主要依赖包：readxl、tidyverse、dplyr、tidyr、ggplot2、openxlsx、gridExtra、robustbase、rstatix、ggdendro、circlize、dendextend、vegan
-- 开发环境：VS Code
 
 ### 原始数据及代码可复现性
 #### 1. 克隆仓库
