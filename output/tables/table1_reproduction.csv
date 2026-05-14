@@ -1,0 +1,9 @@
+Region,Period,Mean,sd,Coefficient_of_variation,W,P
+Eurosiberian,Stadial,0.271,0.07,25.92,7507,9.98e-14
+Eurosiberian,Interstadial,0.339,0.038,11.33,NA,NA
+Supramediterranean,Stadial,0.202,0.045,22.26,8244,9.06e-21
+Supramediterranean,Interstadial,0.269,0.029,10.77,NA,NA
+Mesomediterranean,Stadial,0.301,0.03,10,5799,0.00248
+Mesomediterranean,Interstadial,0.313,0.027,8.59,NA,NA
+Thermomediterranean,Stadial,0.259,0.024,9.09,4621,0.987
+Thermomediterranean,Interstadial,0.259,0.028,10.66,NA,NA
