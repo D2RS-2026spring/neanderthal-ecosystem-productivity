@@ -1,6 +1,6 @@
 
 <img width="693" height="371" alt="image" src="https://github.com/user-attachments/assets/c0a9cce8-e9ed-43b4-8763-a1b0d6ebf562" />
-<img width="693" height="371" alt="image" src="https://github.com/user-attachments/assets/94eb0f0b-e405-453b-a96c-9e54203ffedd" />
+<img width="2205" height="1297" alt="f0dd82942038d68ee9b50ec60d236659" src="https://github.com/user-attachments/assets/4ffe486a-d014-43de-9cbc-cda84e76004c" />
 
 # 伊比利亚半岛尼安德特人消失研究复现报告
 ## 小组基本信息
