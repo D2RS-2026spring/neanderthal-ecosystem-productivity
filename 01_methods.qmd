@@ -1,0 +1,39 @@
+---
+title: "数据与方法"
+---
+
+# 数据与方法
+
+## 研究设计
+
+1. **年代框架**：贝叶斯模型 + 最优线性估计 + 概率叠加，重建旧石器时代过渡时间线
+2. **生态建模**：LPJ-GUESS 模型估算净初级生产力（NPP）→ 宏生态模型估算食草动物承载力
+3. **时空耦合**：对比四大生物地理区 NPP、食草动物生物量与莫斯特文化（尼人）、奥瑞纳文化（现代人）的时空分布
+
+## 数据来源
+
+原始数据来自 Zenodo 数据仓库（DOI: 10.5281/zenodo.6832689）：
+
+| 文件 | 内容 |
+|------|------|
+| `Dataset-NPP.xlsx` | 四大生物地理区 MIS 3 期 NPP 时间序列 |
+| `HB_ValidationDataset.xlsx` | NPP-食草动物生物量经验观测数据 |
+| `Herbivore.Species.xlsx` | 各区域食草动物物种、体型、出现时段 |
+
+## R 环境
+
+- R 4.4.2
+- 主要包：`readxl`, `tidyverse`, `openxlsx`, `gridExtra`, `robustbase`, `rstatix`
+
+## 分析流程
+
+```{r}
+#| label: setup
+#| include: false
+source("scripts/setup.R")
+```
+
+1. 读取 NPP 数据，按区域和气候阶段统计
+2. 建立 NPP → 食草动物生物量回归模型（`lmrob` 稳健回归）
+3. 估算各体型食草动物在每个气候阶段的承载力
+4. 绘制统计图表，对比区域差异

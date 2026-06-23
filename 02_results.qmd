@@ -1,0 +1,321 @@
+---
+title: "复现结果"
+---
+
+# 复现结果
+
+```{r}
+#| label: setup
+#| include: false
+source("scripts/setup.R")
+```
+
+## Table 1：NPP 统计分析
+
+比较四个生物地理区在 Stadial / Interstadial 阶段的 NPP 差异。
+
+### 数据准备
+
+```{r}
+#| label: table1-data
+
+library(readxl)
+library(tidyverse)
+
+npp_raw <- read_excel("data/raw/Dataset-NPP.xlsx", sheet = "NPP_Regions")
+
+npp_long <- npp_raw %>%
+  filter(!is.na(Phase)) %>%
+  select(Age, Phase, starts_with("NPP_")) %>%
+  pivot_longer(cols = starts_with("NPP_"), names_to = "Region", values_to = "NPP") %>%
+  mutate(
+    Region = str_remove(Region, "^NPP_"),
+    Region = recode(Region, "Submediterranean" = "Supramediterranean"),
+    Period = case_when(
+      str_detect(Phase, "^GS") ~ "Stadial",
+      str_detect(Phase, "^GI") ~ "Interstadial",
+      TRUE ~ NA_character_
+    ),
+    Region = factor(Region, levels = c("Eurosiberian", "Supramediterranean",
+                                        "Mesomediterranean", "Thermomediterranean")),
+    Period = factor(Period, levels = c("Stadial", "Interstadial"))
+  ) %>%
+  filter(!is.na(Period), !is.na(NPP))
+```
+
+### 统计汇总
+
+```{r}
+#| label: table1-summary
+
+cv <- function(x) 100 * sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE)
+
+table1_summary <- npp_long %>%
+  group_by(Region, Period) %>%
+  summarise(
+    Mean = round(mean(NPP, na.rm = TRUE), 3),
+    SD = round(sd(NPP, na.rm = TRUE), 3),
+    CV = round(cv(NPP), 2),
+    .groups = "drop"
+  )
+knitr::kable(table1_summary, caption = "各生物地理区 NPP 统计汇总")
+```
+
+### Wilcoxon 秩和检验
+
+```{r}
+#| label: table1-wilcox
+
+wilcox_results <- npp_long %>%
+  group_by(Region) %>%
+  summarise(
+    W = wilcox.test(NPP[Period == "Interstadial"], NPP[Period == "Stadial"])$statistic,
+    P = wilcox.test(NPP[Period == "Interstadial"], NPP[Period == "Stadial"])$p.value,
+    .groups = "drop"
+  )
+knitr::kable(wilcox_results, caption = "Wilcoxon 秩和检验结果")
+```
+
+### 箱线图
+
+```{r}
+#| label: fig-table1
+#| fig-cap: "各生物地理区 NPP 箱线图"
+#| fig-width: 8
+#| fig-height: 5
+
+ggplot(npp_long, aes(x = Region, y = NPP, fill = Period)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.65) +
+  labs(
+    title = "NPP by biogeographical region and climatic period",
+    x = "Biogeographical region",
+    y = expression("NPP (kg km"^-2 * " yr"^-1 * ")"),
+    fill = "Period"
+  ) +
+  theme_bw(base_size = 13) +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1), legend.position = "top")
+```
+
+## Figure 3：食草动物承载力箱线图
+
+### NPP 时间序列（四个区域）
+
+```{r}
+#| label: fig-npp-ts
+#| fig-cap: "四个生物地理区 NPP 时间序列"
+#| fig-width: 8
+#| fig-height: 8
+
+npp_euro <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames = FALSE,
+                      colNames = TRUE, sheet = "NPP.Eurosiberian")
+npp_sub <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames = FALSE,
+                     colNames = TRUE, sheet = "NPP.Submediterranean")
+npp_meso <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames = FALSE,
+                      colNames = TRUE, sheet = "NPP.Mesomediterranean")
+npp_thermo <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames = FALSE,
+                        colNames = TRUE, sheet = "NPP.Thermomediterranean")
+
+plot_npp <- function(df, title) {
+  ggplot(df, aes(x = Age, y = NPP, ymin = NPP - 2 * SD, ymax = NPP + 2 * SD)) +
+    geom_line(color = "black", linewidth = 0.8) +
+    scale_x_reverse(breaks = seq(30000, 55000, 5000)) +
+    geom_ribbon(alpha = 0.3) +
+    ggtitle(title) +
+    xlab("Age (BP)") + ylab("NPP (kg/m²/yr)") +
+    ylim(0, 0.6) +
+    theme_classic(base_size = 12)
+}
+
+grid.arrange(
+  plot_npp(npp_euro, "Eurosiberian"),
+  plot_npp(npp_sub, "SubMediterranean"),
+  plot_npp(npp_meso, "Mesomediterranean"),
+  plot_npp(npp_thermo, "Thermomediterranean"),
+  nrow = 4
+)
+```
+
+### 食草动物承载力估算
+
+```{r}
+#| label: fig3
+#| fig-cap: "四大区域不同体型食草动物承载力箱线图"
+#| fig-width: 8
+#| fig-height: 10
+
+# 定义四个区域的参数
+regions <- list(
+  list(name = "Eurosiberian", npp_sheet = "NPP.Eurosiberian",
+       fauna_sheet = "Fauna.EuroSiberian", macro = "EuroSiberian",
+       periods = list(
+         list(period = "GI-13", bm_col = "BM_GI13_GI9", species_col = "Species_GI13_GI9", sc_col = "SC_GI13_GI9"),
+         list(period = "GS-13", bm_col = "BM_GI13_GI9", species_col = "Species_GI13_GI9", sc_col = "SC_GI13_GI9"),
+         list(period = "GI-12", bm_col = "BM_GI13_GI9", species_col = "Species_GI13_GI9", sc_col = "SC_GI13_GI9"),
+         list(period = "GS-12", bm_col = "BM_GI13_GI9", species_col = "Species_GI13_GI9", sc_col = "SC_GI13_GI9"),
+         list(period = "GI-11", bm_col = "BM_GI13_GI9", species_col = "Species_GI13_GI9", sc_col = "SC_GI13_GI9"),
+         list(period = "GS-11", bm_col = "BM_GI13_GI9", species_col = "Species_GI13_GI9", sc_col = "SC_GI13_GI9"),
+         list(period = "GI-10", bm_col = "BM_GI13_GI9", species_col = "Species_GI13_GI9", sc_col = "SC_GI13_GI9"),
+         list(period = "GS-10", bm_col = "BM_GI13_GI9", species_col = "Species_GI13_GI9", sc_col = "SC_GI13_GI9"),
+         list(period = "GI-9",  bm_col = "BM_GI13_GI9", species_col = "Species_GI13_GI9", sc_col = "SC_GI13_GI9"),
+         list(period = "GS-9",  bm_col = "BM_GS9_GI7", species_col = "Species_GS9_GI7", sc_col = "SC_GS9_GI7"),
+         list(period = "GI-8",  bm_col = "BM_GS9_GI7", species_col = "Species_GS9_GI7", sc_col = "SC_GS9_GI7"),
+         list(period = "GS-8",  bm_col = "BM_GS9_GI7", species_col = "Species_GS9_GI7", sc_col = "SC_GS9_GI7"),
+         list(period = "GI-7",  bm_col = "BM_GS9_GI7", species_col = "Species_GS9_GI7", sc_col = "SC_GS9_GI7"),
+         list(period = "GS-7",  bm_col = "BM_GS7_GS5", species_col = "Species_GS7_GS5", sc_col = "SC_GS7_GS5"),
+         list(period = "GI-6",  bm_col = "BM_GS7_GS5", species_col = "Species_GS7_GS5", sc_col = "SC_GS7_GS5"),
+         list(period = "GS-6",  bm_col = "BM_GS7_GS5", species_col = "Species_GS7_GS5", sc_col = "SC_GS7_GS5"),
+         list(period = "GI-5",  bm_col = "BM_GS7_GS5", species_col = "Species_GS7_GS5", sc_col = "SC_GS7_GS5"),
+         list(period = "GS-5",  bm_col = "BM_GS7_GS5", species_col = "Species_GS7_GS5", sc_col = "SC_GS7_GS5")
+       )),
+  list(name = "SubMediterranean", npp_sheet = "NPP.Submediterranean",
+       fauna_sheet = "Fauna.SubMediterranean", macro = "Mediterranean",
+       periods = list(
+         list(period = "GI-13", bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GS-13", bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GI-12", bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GS-12", bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GI-11", bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GS-11", bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GI-10", bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GS-10", bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GI-9",  bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GS-9",  bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GI-8",  bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GS-8",  bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GI-7",  bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GS-7",  bm_col = "BM_GI13_GS7", species_col = "Species_GI13_GS7", sc_col = "SC_GI13_GS7"),
+         list(period = "GI-6",  bm_col = "BM_GI6_GS5", species_col = "Species_GI6_GS5", sc_col = "SC_GI6_GS5"),
+         list(period = "GS-6",  bm_col = "BM_GI6_GS5", species_col = "Species_GI6_GS5", sc_col = "SC_GI6_GS5"),
+         list(period = "GI-5",  bm_col = "BM_GI6_GS5", species_col = "Species_GI6_GS5", sc_col = "SC_GI6_GS5"),
+         list(period = "GS-5",  bm_col = "BM_GI6_GS5", species_col = "Species_GI6_GS5", sc_col = "SC_GI6_GS5")
+       )),
+  list(name = "MesoMediterranean", npp_sheet = "NPP.Mesomediterranean",
+       fauna_sheet = "Fauna.MesoMediterranean", macro = "Mediterranean",
+       periods = list(
+         list(period = "GI-13", bm_col = "BM_GI13_GS9", species_col = "Species_GI13_GS9", sc_col = "SC_GI13_GS9"),
+         list(period = "GS-13", bm_col = "BM_GI13_GS9", species_col = "Species_GI13_GS9", sc_col = "SC_GI13_GS9"),
+         list(period = "GI-12", bm_col = "BM_GI13_GS9", species_col = "Species_GI13_GS9", sc_col = "SC_GI13_GS9"),
+         list(period = "GS-12", bm_col = "BM_GI13_GS9", species_col = "Species_GI13_GS9", sc_col = "SC_GI13_GS9"),
+         list(period = "GI-11", bm_col = "BM_GI13_GS9", species_col = "Species_GI13_GS9", sc_col = "SC_GI13_GS9"),
+         list(period = "GS-11", bm_col = "BM_GI13_GS9", species_col = "Species_GI13_GS9", sc_col = "SC_GI13_GS9"),
+         list(period = "GI-10", bm_col = "BM_GI13_GS9", species_col = "Species_GI13_GS9", sc_col = "SC_GI13_GS9"),
+         list(period = "GS-10", bm_col = "BM_GI13_GS9", species_col = "Species_GI13_GS9", sc_col = "SC_GI13_GS9"),
+         list(period = "GI-9",  bm_col = "BM_GI13_GS9", species_col = "Species_GI13_GS9", sc_col = "SC_GI13_GS9"),
+         list(period = "GS-9",  bm_col = "BM_GI13_GS9", species_col = "Species_GI13_GS9", sc_col = "SC_GI13_GS9"),
+         list(period = "GI-8",  bm_col = "BM_GI8_GI7", species_col = "Species_GI8_GI7", sc_col = "SC_GI8_GI7"),
+         list(period = "GS-8",  bm_col = "BM_GI8_GI7", species_col = "Species_GI8_GI7", sc_col = "SC_GI8_GI7"),
+         list(period = "GI-7",  bm_col = "BM_GI8_GI7", species_col = "Species_GI8_GI7", sc_col = "SC_GI8_GI7"),
+         list(period = "GS-7",  bm_col = "BM_GS7_GS5", species_col = "Species_GS7_GS5", sc_col = "SC_GS7_GS5"),
+         list(period = "GI-6",  bm_col = "BM_GS7_GS5", species_col = "Species_GS7_GS5", sc_col = "SC_GS7_GS5"),
+         list(period = "GS-6",  bm_col = "BM_GS7_GS5", species_col = "Species_GS7_GS5", sc_col = "SC_GS7_GS5"),
+         list(period = "GI-5",  bm_col = "BM_GS7_GS5", species_col = "Species_GS7_GS5", sc_col = "SC_GS7_GS5"),
+         list(period = "GS-5",  bm_col = "BM_GS7_GS5", species_col = "Species_GS7_GS5", sc_col = "SC_GS7_GS5")
+       )),
+  list(name = "ThermoMediterranean", npp_sheet = "NPP.Thermomediterranean",
+       fauna_sheet = "Fauna.ThermoMediterranean", macro = "Mediterranean",
+       periods = list(
+         list(period = "GI-13", bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GS-13", bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GI-12", bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GS-12", bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GI-11", bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GS-11", bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GI-10", bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GS-10", bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GI-9",  bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GS-9",  bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GI-8",  bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GS-8",  bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GI-7",  bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GS-7",  bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GI-6",  bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GS-6",  bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GI-5",  bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5"),
+         list(period = "GS-5",  bm_col = "BM_GI13_GS5", species_col = "Species_GI13_GS5", sc_col = "SC_GI13_GS5")
+       ))
+)
+
+# 处理所有区域
+all_biomass <- list()
+for (r in regions) {
+  result <- process_region(r$npp_sheet, r$fauna_sheet, r$periods)
+  result$biomass$Region <- r$name
+  result$biomass$MacroRegion <- r$macro
+  all_biomass[[r$name]] <- result$biomass
+}
+Herbivore_Biomass <- do.call(rbind, all_biomass)
+```
+
+```{r}
+#| label: fig3-plot
+#| fig-cap: "四大区域不同体型食草动物承载力箱线图"
+#| fig-width: 8
+#| fig-height: 10
+
+region_order <- c("Eurosiberian", "SubMediterranean", "MesoMediterranean", "ThermoMediterranean")
+
+make_boxplot <- function(df, ycol, ylab) {
+  ggplot(df, aes(x = factor(Region, levels = region_order), y = .data[[ycol]], fill = SI)) +
+    stat_boxplot(geom = "errorbar", position = position_dodge(0.9), width = 0.5) +
+    geom_boxplot(position = position_dodge(0.9)) +
+    scale_fill_brewer(palette = "BrBG") +
+    xlab("") + ylab(ylab) + labs(fill = "") +
+    theme_classic(base_size = 12)
+}
+
+grid.arrange(
+  make_boxplot(Herbivore_Biomass, "Biomass_Large_Herbivores_Mean", "Large herbivores"),
+  make_boxplot(Herbivore_Biomass, "Biomass_MediumLarge_Herbivores_Mean", "Medium-large herbivores"),
+  make_boxplot(Herbivore_Biomass, "Biomass_MediumSize_Herbivores_Mean", "Medium herbivores"),
+  make_boxplot(Herbivore_Biomass, "Biomass_SmallSize_Herbivores_Mean", "Small herbivores"),
+  nrow = 4
+)
+```
+
+## Figure 5：食草动物承载力堆积柱状图
+
+```{r}
+#| label: fig5
+#| fig-cap: "四大区域食草动物承载力时序变化"
+#| fig-width: 8
+#| fig-height: 10
+
+# 转换为长格式
+size_cols <- c("Biomass_SmallSize_Herbivores_Mean", "Biomass_MediumSize_Herbivores_Mean",
+               "Biomass_MediumLarge_Herbivores_Mean", "Biomass_Large_Herbivores_Mean")
+size_labels <- c("Small", "Medium", "Medium-Large", "Large")
+
+Dataset_Biomass <- do.call(rbind, lapply(1:4, function(i) {
+  data.frame(
+    Biomass = Herbivore_Biomass[[size_cols[i]]],
+    Phase = Herbivore_Biomass$Phase,
+    Region = Herbivore_Biomass$Region,
+    Size = size_labels[i]
+  )
+}))
+
+phase_order <- c("GI-13", "GS-13", "GI-12", "GS-12", "GI-11", "GS-11",
+                 "GI-10", "GS-10", "GI-9", "GS-9", "GI-8", "GS-8",
+                 "GI-7", "GS-7", "GI-6", "GS-6", "GI-5", "GS-5")
+
+make_barplot <- function(region_name) {
+  df <- subset(Dataset_Biomass, Region == region_name)
+  ggplot(df, aes(x = Phase, y = Biomass,
+                 fill = factor(Size, levels = rev(size_labels)))) +
+    geom_bar(stat = "identity", position = "stack") +
+    scale_x_discrete(limits = phase_order) +
+    scale_y_continuous(limits = c(0, 950)) +
+    scale_fill_brewer(palette = "BrBG", name = "Size") +
+    labs(title = region_name, x = "Stadial/Interstadial", y = "Biomass (kg/km²)") +
+    theme_classic(base_size = 11) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7))
+}
+
+grid.arrange(
+  make_barplot("Eurosiberian"),
+  make_barplot("SubMediterranean"),
+  make_barplot("MesoMediterranean"),
+  make_barplot("ThermoMediterranean"),
+  nrow = 4
+)
+```

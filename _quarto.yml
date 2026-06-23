@@ -8,13 +8,13 @@ book:
   date: "2026-06-22"
   chapters:
     - index.qmd
-    - 01_introduction.qmd
-    - 02_methods.qmd
-    - 03_results.qmd
-    - 04_conclusion.qmd
+    - 01_methods.qmd
+    - 02_results.qmd
+    - 03_discussion.qmd
 
 format:
   html:
     theme: cosmo
     toc: true
     number-sections: true
+    code-fold: false
