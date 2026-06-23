@@ -1,0 +1,20 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "生态系统生产力影响了伊比利亚半岛尼安德特人的时空消失"
+  author: "杨舒妍、陈美林、王嘉仪、郜锦华、秦思怡"
+  date: "2026-06-22"
+  chapters:
+    - index.qmd
+    - 01_introduction.qmd
+    - 02_methods.qmd
+    - 03_results.qmd
+    - 04_conclusion.qmd
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    number-sections: true

@@ -1,0 +1,10 @@
+_book/
+_libs/
+*.html
+!index.html
+renv/
+.Rhistory
+.RData
+
+/.quarto/
+**/*.quarto_ipynb

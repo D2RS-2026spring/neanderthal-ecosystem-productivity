@@ -1,0 +1,48 @@
+---
+title: "研究背景与方法"
+---
+
+# 研究背景与方法
+
+## 科学问题
+
+气候波动如何通过生态生产力→食草动物生物量的 bottom-up 效应，影响尼安德特人消亡与现代人替代？
+
+## 研究设计
+
+### 年代框架
+
+贝叶斯模型+最优线性估计+概率叠加，重建旧石器时代过渡时间线。
+
+### 生态建模
+
+LPJ‑GUESS模型估算净初级生产力（NPP）→宏生态模型估算食草动物承载力。
+
+### 时空耦合
+
+对比四大生物地理区NPP、食草动物生物量与莫斯特文化（尼人）、奥瑞纳文化（现代人）的时空分布。
+
+### 核心结论
+
+生态生产力稳定性决定尼安德特人存续时间，南部高稳定区成为最后避难所。
+
+## 复现方法
+
+### R环境配置
+
+- 版本要求：R 4.5.2
+- 依赖包：`readxl`, `tidyverse`, `dplyr`, `tidyr`, `ggplot2`, `openxlsx`, `gridExtra`, `robustbase`, `rstatix`, `ggdendro`, `circlize`, `dendextend`
+
+### 数据来源
+
+原始数据来自 Zenodo 数据仓库（DOI: 10.5281/zenodo.6832689），包含：
+
+- `Dataset-NPP.xlsx` — 各生物地理区NPP数据
+- `HB_ValidationDataset.xlsx` — 食草动物生物量验证数据集
+- `Herbivore.Species.xlsx` — 食草动物物种信息
+
+### 核心脚本
+
+1. `scripts/02_reproduce_table1.R` — 复现Table 1（NPP统计分析）
+2. `scripts/03_fig3_author_code.R` — 复现Figure 3（食草动物承载力箱线图）
+3. `scripts/04_fig5_author_code.R` — 复现Figure 5（食草动物承载力堆积柱状图）

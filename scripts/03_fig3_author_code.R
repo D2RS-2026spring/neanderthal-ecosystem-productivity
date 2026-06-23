@@ -21,7 +21,7 @@ library(vegan)
 ############ to be run within RStudio.
 ### Choose your own directory:
 
-setwd("C:/Users/shuyan/Desktop/项目文件夹/data/raw")
+# setwd() removed — use relative paths from project root
 
 
 #_________________________________________________________________________________
@@ -34,7 +34,7 @@ setwd("C:/Users/shuyan/Desktop/项目文件夹/data/raw")
 ####### Functions to estimate the total biomass of primary consumers from the estimated NPP <log10 (g/m^2/y)>:
 
 ## Open the dataset with  the NPP and the herbivore biomass empirical observations:
-Dataset <- read.xlsx("HB_ValidationDataset.xlsx", rowNames=FALSE,
+Dataset <- read.xlsx("data/raw/HB_ValidationDataset.xlsx", rowNames=FALSE,
                      colNames=TRUE, sheet="NPP_HB")
 ## Compute the predictive model. For details, see the script :'HerbivoreBiomassFromNPP.R'
 model <- lmrob(logHB~logNPP, data = Dataset) 
@@ -160,7 +160,7 @@ if (FALSE) {
   
   ### NPP comparison according to the DCORT method 
   
-  NPP <- read.xlsx("Dataset-NPP.xlsx", rowNames=FALSE,
+  NPP <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames=FALSE,
                    colNames=TRUE, sheet="ALL.NPP")
   
   
@@ -182,7 +182,7 @@ if (FALSE) {
   
   ### PCOMs comparison according to Jaccard Similarity Index (JSI)
   
-  Fauna <- read.xlsx("Herbivore.Species.xlsx", rowNames=FALSE,
+  Fauna <- read.xlsx("data/raw/Herbivore.Species.xlsx", rowNames=FALSE,
                      colNames=TRUE, sheet="Jaccard.Index")
   
  ### Compute the JSI
@@ -217,7 +217,7 @@ if (FALSE) {
 
 ### NET PRIMARY PRODUCTIVITY (NPP):
 
-NPP.Eurosiberian <- read.xlsx("Dataset-NPP.xlsx", rowNames=FALSE,
+NPP.Eurosiberian <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames=FALSE,
                               colNames=TRUE, sheet="NPP.Eurosiberian")
 
 
@@ -274,7 +274,7 @@ Eurosiberian_Iberia_NPP_Plot
 
 ###### Primary consumer species and their body masses (BM)
 
-Fauna <- read.xlsx("Herbivore.Species.xlsx", rowNames=FALSE,
+Fauna <- read.xlsx("data/raw/Herbivore.Species.xlsx", rowNames=FALSE,
                                colNames=TRUE, sheet="Fauna.EuroSiberian")
 
 
@@ -423,7 +423,7 @@ head(BiomassEurosiberian)
 #
 #_________________________________________________________________________________
 
-NPP.SubMediterranean <- read.xlsx("Dataset-NPP.xlsx", rowNames=FALSE,
+NPP.SubMediterranean <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames=FALSE,
                                     colNames=TRUE, sheet="NPP.Submediterranean")
 
 
@@ -478,7 +478,7 @@ NPP.SubMediterranean_Plot
 
 ###### Primary consumer species and their body masses (BM)
 
-Fauna <- read.xlsx("Herbivore.Species.xlsx", rowNames=FALSE,
+Fauna <- read.xlsx("data/raw/Herbivore.Species.xlsx", rowNames=FALSE,
                    colNames=TRUE, sheet="Fauna.SubMediterranean")
 
 
@@ -617,7 +617,7 @@ head(BiomassSubMediterranean)
 #
 #_________________________________________________________________________________
 
-NPP.MesoMediterranean <- read.xlsx("Dataset-NPP.xlsx", rowNames=FALSE,
+NPP.MesoMediterranean <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames=FALSE,
                                    colNames=TRUE, sheet="NPP.Mesomediterranean")
 
 
@@ -672,7 +672,7 @@ NPP.MesoMediterranean_Plot
 
 ###### Primary consumer species and their body masses (BM)
 
-Fauna <- read.xlsx("Herbivore.Species.xlsx", rowNames=FALSE,
+Fauna <- read.xlsx("data/raw/Herbivore.Species.xlsx", rowNames=FALSE,
                    colNames=TRUE, sheet="Fauna.MesoMediterranean")
 
 
@@ -817,7 +817,7 @@ head(BiomassMesoMediterranean)
 #
 #_____________________________________________________________________________
 
-NPP.ThermoMediterranean <- read.xlsx("Dataset-NPP.xlsx", rowNames=FALSE,
+NPP.ThermoMediterranean <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames=FALSE,
                                      colNames=TRUE, sheet="NPP.Thermomediterranean")
 
 
@@ -876,7 +876,7 @@ NPP.ThermoMediterranean_Plot
 
 
 
-Fauna <- read.xlsx("Herbivore.Species.xlsx", rowNames=FALSE,
+Fauna <- read.xlsx("data/raw/Herbivore.Species.xlsx", rowNames=FALSE,
                    colNames=TRUE, sheet="Fauna.ThermoMediterranean")
 
 
@@ -1164,7 +1164,7 @@ Biomass_Large_Size
 grid.arrange(Biomass_Large_Size, Biomass_MediumLarge_Size, Biomass_Medium_Size, Biomass_Small_Size, nrow = 4)
 # 保存作者 Fig. 3 箱线图
 png(
-  filename = "C:/Users/shuyan/Desktop/项目文件夹/output/figures/fig3_author_boxplot.png",
+  filename = "output/figures/fig3_author_boxplot.png",
   width = 2200,
   height = 2600,
   res = 300

@@ -14,7 +14,7 @@ library(circlize)
 library(dendextend)
 library(vegan)
 
-setwd("D:/D2RS_2026spring/work/0514/Data-and-code-associated-with-Iberia-Neanderthal-ecosystems-productivity_Nature-Ecology-Evolution/data/raw")
+# setwd() removed — use relative paths from project root
 
 
 #_________________________________________________________________________________
@@ -27,7 +27,7 @@ setwd("D:/D2RS_2026spring/work/0514/Data-and-code-associated-with-Iberia-Neander
 ####### Functions to estimate the total biomass of primary consumers from the estimated NPP <log10 (g/m^2/y)>:
 
 ## Open the dataset with  the NPP and the herbivore biomass empirical observations:
-Dataset <- read.xlsx("HB_ValidationDataset.xlsx", rowNames=FALSE,
+Dataset <- read.xlsx("data/raw/HB_ValidationDataset.xlsx", rowNames=FALSE,
                      colNames=TRUE, sheet="NPP_HB")
 ## Compute the predictive model. For details, see the script :'HerbivoreBiomassFromNPP.R'
 model <- lmrob(logHB~logNPP, data = Dataset) 
@@ -153,7 +153,7 @@ if (FALSE) {
   
   ### NPP comparison according to the DCORT method 
   
-  NPP <- read.xlsx("Dataset-NPP.xlsx", rowNames=FALSE,
+  NPP <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames=FALSE,
                    colNames=TRUE, sheet="ALL.NPP")
   
   
@@ -175,7 +175,7 @@ if (FALSE) {
   
   ### PCOMs comparison according to Jaccard Similarity Index (JSI)
   
-  Fauna <- read.xlsx("Herbivore.Species.xlsx", rowNames=FALSE,
+  Fauna <- read.xlsx("data/raw/Herbivore.Species.xlsx", rowNames=FALSE,
                      colNames=TRUE, sheet="Jaccard.Index")
   
  ### Compute the JSI
@@ -210,7 +210,7 @@ if (FALSE) {
 
 ### NET PRIMARY PRODUCTIVITY (NPP):
 
-NPP.Eurosiberian <- read.xlsx("Dataset-NPP.xlsx", rowNames=FALSE,
+NPP.Eurosiberian <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames=FALSE,
                               colNames=TRUE, sheet="NPP.Eurosiberian")
 
 
@@ -267,7 +267,7 @@ Eurosiberian_Iberia_NPP_Plot
 
 ###### Primary consumer species and their body masses (BM)
 
-Fauna <- read.xlsx("Herbivore.Species.xlsx", rowNames=FALSE,
+Fauna <- read.xlsx("data/raw/Herbivore.Species.xlsx", rowNames=FALSE,
                                colNames=TRUE, sheet="Fauna.EuroSiberian")
 
 
@@ -416,7 +416,7 @@ head(BiomassEurosiberian)
 #
 #_________________________________________________________________________________
 
-NPP.SubMediterranean <- read.xlsx("Dataset-NPP.xlsx", rowNames=FALSE,
+NPP.SubMediterranean <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames=FALSE,
                                     colNames=TRUE, sheet="NPP.Submediterranean")
 
 
@@ -471,7 +471,7 @@ NPP.SubMediterranean_Plot
 
 ###### Primary consumer species and their body masses (BM)
 
-Fauna <- read.xlsx("Herbivore.Species.xlsx", rowNames=FALSE,
+Fauna <- read.xlsx("data/raw/Herbivore.Species.xlsx", rowNames=FALSE,
                    colNames=TRUE, sheet="Fauna.SubMediterranean")
 
 
@@ -610,7 +610,7 @@ head(BiomassSubMediterranean)
 #
 #_________________________________________________________________________________
 
-NPP.MesoMediterranean <- read.xlsx("Dataset-NPP.xlsx", rowNames=FALSE,
+NPP.MesoMediterranean <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames=FALSE,
                                    colNames=TRUE, sheet="NPP.Mesomediterranean")
 
 
@@ -665,7 +665,7 @@ NPP.MesoMediterranean_Plot
 
 ###### Primary consumer species and their body masses (BM)
 
-Fauna <- read.xlsx("Herbivore.Species.xlsx", rowNames=FALSE,
+Fauna <- read.xlsx("data/raw/Herbivore.Species.xlsx", rowNames=FALSE,
                    colNames=TRUE, sheet="Fauna.MesoMediterranean")
 
 
@@ -810,7 +810,7 @@ head(BiomassMesoMediterranean)
 #
 #_____________________________________________________________________________
 
-NPP.ThermoMediterranean <- read.xlsx("Dataset-NPP.xlsx", rowNames=FALSE,
+NPP.ThermoMediterranean <- read.xlsx("data/raw/Dataset-NPP.xlsx", rowNames=FALSE,
                                      colNames=TRUE, sheet="NPP.Thermomediterranean")
 
 
@@ -869,7 +869,7 @@ NPP.ThermoMediterranean_Plot
 
 
 
-Fauna <- read.xlsx("Herbivore.Species.xlsx", rowNames=FALSE,
+Fauna <- read.xlsx("data/raw/Herbivore.Species.xlsx", rowNames=FALSE,
                    colNames=TRUE, sheet="Fauna.ThermoMediterranean")
 
 
@@ -1256,7 +1256,7 @@ Thermomediterranean_Boimass
 grid.arrange(Eurosiberian_Boimass, SubMediterranean_Boimass,
              Mesomediterranean_Boimass, Thermomediterranean_Boimass, nrow = 4)
 png(
-  filename = "D:/D2RS_2026spring/work/0514/Data-and-code-associated-with-Iberia-Neanderthal-ecosystems-productivity_Nature-Ecology-Evolution/output/figures/fig5_author_barplot.png",
+  filename = "output/figures/fig5_author_barplot.png",
   width = 2200,
   height = 2600,
   res = 300
@@ -1274,7 +1274,7 @@ dev.off()
 
 write.csv(
   Dataset_Biomass,
-  "D:/D2RS_2026spring/work/0514/Data-and-code-associated-with-Iberia-Neanderthal-ecosystems-productivity_Nature-Ecology-Evolution/output/tables/fig5_plot_data_author.csv",
+  "output/tables/fig5_plot_data_author.csv",
   row.names = FALSE
 )
 
